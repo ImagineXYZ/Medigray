@@ -1,0 +1,7 @@
+Revisión de rutinas en bibliotecas
+Revisión de ejemplos HTTP y MQTT
+Reducción de tiempo en Http
+Rutina para que funcione como transmisor usando el puerto serial(firmware hecho a la medida)
+Documentaciones para uso en hardwarethon
+Consideraciones para códigos de servidor diferentes a tres digitos
+Consideraciones para cuando el body no es un JSON
