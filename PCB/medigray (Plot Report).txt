@@ -1,0 +1,270 @@
+Plot Report
+-----------
+
+Report Written:     Friday, June 30, 2017
+Project Path:       C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.prj
+Design Path:        C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.pcb
+Design Title:       
+Created:            29/06/2017 10:00:42 p.m.
+Last Saved:         30/06/2017 01:00:32 p.m.
+Editing Time:       378 min
+Units:              mm (precision 3)
+
+
+Device Settings
+===============
+
+
+Gerber Settings
+===============
+
+    Leading zero suppression.
+    G01 assumed throughout.
+    Line termination <*> <CR> <LF>.
+    3.5 format absolute inches.
+    Format commands defined in Gerber file.
+    Aperture table defined in Gerber file.
+    Hardware arcs allowed.
+
+
+Drill Settings
+==============
+
+    Excellon Format 1    Format 3.5 absolute in inches.
+    No zero suppression.
+
+
+Plots Output
+============
+
+    Plot Job: "C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.mop"
+
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Top Copper.gbr
+
+    Layers:
+    --------------
+    Top Copper
+
+    D-Code Shape  (thou)
+    -----------------------
+    D18    Square 78.74
+    D19    Round 78.74
+    D71    Square 82.68
+    D20    Round 82.68
+    D25    Round 94.49
+    D29    Round 39.37
+    D74    Round 141.73
+    D75    Square 94.49
+    D76    Square 133.86
+    D77    Round 133.86
+    D78    Octagon 86.61
+    D79    Octagon 74.80
+    D80    Round 25.59
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Top Solder Mask.gbr
+
+    Layers:
+    -------------------
+    Top Solder Mask
+
+    D-Code Shape  (thou)
+    -----------------------
+    D85    Round 147.73
+    D86    Square 100.49
+    D87    Round 100.49
+    D88    Square 88.68
+    D89    Round 88.68
+    D90    Square 139.86
+    D91    Round 139.86
+    D92    Round 84.74
+    D93    Square 84.74
+    D94    Octagon 86.61
+    D95    Octagon 74.80
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Top Paste Mask.gbr
+
+    Layers:
+    ------------------
+    Top Paste Mask
+
+    D-Code Shape  (thou)
+    -----------------------
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Top Silkscreen.gbr
+
+    Layers:
+    ------------------
+    Top Silkscreen
+
+    D-Code Shape  (thou)
+    -----------------------
+    D15    Round 5.00
+    D81    Round 11.81
+    D82    Round 9.84
+    D83    Round 1.97
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Bottom Copper.gbr
+
+    Layers:
+    -----------------
+    Bottom Copper
+
+    D-Code Shape  (thou)
+    -----------------------
+    D18    Square 78.74
+    D19    Round 78.74
+    D71    Square 82.68
+    D20    Round 82.68
+    D25    Round 94.49
+    D29    Round 39.37
+    D74    Round 141.73
+    D75    Square 94.49
+    D76    Square 133.86
+    D77    Round 133.86
+    D78    Octagon 86.61
+    D79    Octagon 74.80
+    D80    Round 25.59
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Bottom Solder Mask.gbr
+
+    Layers:
+    ----------------------
+    Bottom Solder Mask
+
+    D-Code Shape  (thou)
+    -----------------------
+    D85    Round 147.73
+    D86    Square 100.49
+    D87    Round 100.49
+    D88    Square 88.68
+    D89    Round 88.68
+    D90    Square 139.86
+    D91    Round 139.86
+    D92    Round 84.74
+    D93    Square 84.74
+    D94    Octagon 86.61
+    D95    Octagon 74.80
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Bottom Paste Mask.gbr
+
+    Layers:
+    ---------------------
+    Bottom Paste Mask
+
+    D-Code Shape  (thou)
+    -----------------------
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Bottom Silkscreen.gbr
+
+    Layers:
+    ---------------------
+    Bottom Silkscreen
+
+    D-Code Shape  (thou)
+    -----------------------
+    D83    Round 1.97
+
+NC Drill Output
+===============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Drill Data - [Through Hole].drl
+
+    Output:
+    -----------------------------
+    Plated Round Drill Holes
+    Unplated Round Drill Holes
+    Plated Slots
+    Unplated Slots
+    Plated Board Outlines
+    Unplated Board Outlines
+
+    Tool  Size         Count   ID  (Plated/Unplated)
+    ---------------------------------------------------------
+    T001  000.02362 in 4     F
+    T002  000.02500 in 1
+    T003  000.03000 in 5     D    /H
+    T004  000.03543 in 79    A
+    T005  000.05906 in 3     I
+    T006  000.12520 in 4     G
+    ---------------------------------------------------------
+    Total              96
+    ---------------------------------------------------------
+
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Drill Ident Drawing - [Through Hole].gbr
+
+    Layers:
+    ------------------
+    [Through Hole]
+
+
+Drill Ident Drawing
+===================
+
+    Drill Plated Size Shape ID
+    -----------------------------------
+    35    Y      100  Round A
+    30    Y      100  Round D
+    24    Y      100  Round F
+    125   Y      100  Round G
+    30           100  Round H
+    59    Y      100  Round I
+
+    D-Code Shape  (thou)
+    -----------------------
+    D14    Round 100.00
+    D15    Round 5.00
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray - Outline.gbr
+
+    Layers:
+    ----------------
+    BoardOutline
+
+    D-Code Shape  (thou)
+    -----------------------
+    D18    Square 78.74
+    D19    Round 78.74
+    D71    Square 82.68
+    D20    Round 82.68
+    D25    Round 94.49
+    D74    Round 141.73
+    D75    Square 94.49
+    D76    Square 133.86
+    D77    Round 133.86
+    D78    Octagon 86.61
+    D79    Octagon 74.80
+    D84    Round 3.94
+
+End Of Report.

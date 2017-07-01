@@ -1,0 +1,18 @@
+Schematic and PCB Check Report
+------------------------------
+
+Report Written:     Friday, June 30, 2017
+Project Path:       C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.prj
+Design Path:        C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.pcb
+Design Title:       
+Created:            29/06/2017 10:00:42 p.m.
+Last Saved:         30/06/2017 11:46:02 a.m.
+Editing Time:       304 min
+Units:              mm (precision 3)
+
+
+Checking integrity of Schematic "C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.sch" with PCB "C:\users\bryanmtdt\My Documents\git\Medigray\PCB\medigray.pcb"
+========================================================================================================================================================================
+
+
+End Of Report.
