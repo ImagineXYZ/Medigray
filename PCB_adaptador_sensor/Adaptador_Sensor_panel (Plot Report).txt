@@ -1,0 +1,130 @@
+Plot Report
+-----------
+
+Report Written:     Monday, July 24, 2017
+Design Path:        C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel.pcb
+Design Title:       
+Created:            24/07/2017 04:17:09 p.m.
+Last Saved:         24/07/2017 04:29:03 p.m.
+Editing Time:       12 min
+Units:              mm (precision 3)
+
+
+Device Settings
+===============
+
+
+Gerber Settings
+===============
+
+    Leading zero suppression.
+    G01 assumed throughout.
+    Line termination <*> <CR> <LF>.
+    3.5 format absolute inches.
+    Format commands defined in Gerber file.
+    Aperture table defined in Gerber file.
+
+
+Drill Settings
+==============
+
+    Excellon Format 1    Format 3.5 absolute in inches.
+    No zero suppression.
+
+
+Plots Output
+============
+
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel - Top Copper.gbr
+
+    Layers:
+    --------------
+    Top Copper
+
+    D-Code Shape  (thou)
+    ---------------------------------------------
+    D20    Round 82.68
+    D29    Round 39.37
+    D123   Round 31.50
+    D131   Square 33.46
+    D132   Round 33.46
+    D133   Octagon 82.68
+    D134   Triangle 33.46 X 33.46  Rotation 90
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel - Border.gbr
+
+    Layers:
+    -----------
+    Border
+
+    D-Code Shape  (thou)
+    -----------------------
+    D15    Round 5.00
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel - Bottom Silkscreen.gbr
+
+    Layers:
+    ---------------------
+    Bottom Silkscreen
+
+    D-Code Shape  (thou)
+    -----------------------
+    D15    Round 5.00
+
+NC Drill Output
+===============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel - Drill Data - [Through Hole].drl
+
+    Output:
+    -----------------------------
+    Plated Round Drill Holes
+    Unplated Round Drill Holes
+    Plated Slots
+    Unplated Slots
+    Plated Board Outlines
+    Unplated Board Outlines
+
+    Tool  Size         Count   ID
+    ------------------------------------
+    T001  000.02362 in 80    F
+    T002  000.06693 in 80    P
+    ------------------------------------
+    Total              160
+    ------------------------------------
+
+
+Gerber Output
+=============
+
+C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel - Drill Ident Drawing - [Through Hole].gbr
+
+    Layers:
+    ------------------
+    [Through Hole]
+
+
+Drill Ident Drawing
+===================
+
+    Drill Plated Size Shape ID
+    -----------------------------------
+    24    Y      100  Round F
+    67    Y      100  Round P
+
+    D-Code Shape  (thou)
+    -----------------------
+    D14    Round 100.00
+    D15    Round 5.00
+
+End Of Report.

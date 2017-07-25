@@ -1,0 +1,63 @@
+Design Rule Check Report
+------------------------
+
+Report Written:     Monday, July 24, 2017
+Design Path:        C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor_panel.pcb
+Design Title:       
+Created:            24/07/2017 04:17:09 p.m.
+Last Saved:         24/07/2017 04:27:43 p.m.
+Editing Time:       11 min
+Units:              mm (precision 3)
+
+
+Results
+=======
+
+
+No errors found
+
+
+Settings
+========
+
+
+Spacings
+
+=========
+
+Tracks        Yes
+Pads and Vias Yes
+Shapes        Yes
+Text          Yes
+Board         Yes
+Drills        Yes
+Components    No
+
+
+Manufacturing
+
+==============
+
+Drill Breakout                  No
+Drill Backoff                   No
+Silkscreen Overlap              No
+Copper Text In Board            No
+Min Track Width                 No
+Min Annular Ring                No
+Min Paste Size                  No
+Vias In Pads                    No
+Unplated Vias                   No
+Unplated Pads With Inner Tracks No
+
+
+Nets
+
+=====
+
+Net Completion               Yes
+Dangling Tracks              Yes
+Net Track Length Differences No
+
+
+
+End Of Report.

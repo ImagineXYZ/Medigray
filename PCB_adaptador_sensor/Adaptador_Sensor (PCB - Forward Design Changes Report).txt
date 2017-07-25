@@ -1,0 +1,28 @@
+Forward Design Changes Report
+-----------------------------
+
+Report Written:     Monday, July 24, 2017
+Project Path:       C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor.prj
+Design Path:        C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor.pcb
+Design Title:       
+Created:            24/07/2017 11:08:25 a.m.
+Last Saved:         24/07/2017 11:12:38 a.m.
+Editing Time:       17 min
+Units:              mm (precision 3)
+
+Added net "SCK".
+Added net "GND".
+Added net "DATA".
+Added net "VDD".
+
+Connected pin "U1-1" to net "SCK".
+Connected pin "U1-2" to net "VDD".
+Connected pin "U1-3" to net "GND".
+Connected pin "U1-4" to net "DATA".
+Connected pin "CONN1-1" to net "DATA".
+Connected pin "CONN1-2" to net "VDD".
+Connected pin "CONN1-3" to net "SCK".
+Connected pin "CONN1-4" to net "GND".
+
+
+End Of Report.

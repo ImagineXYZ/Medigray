@@ -1,0 +1,18 @@
+Schematic and PCB Check Report
+------------------------------
+
+Report Written:     Monday, July 24, 2017
+Project Path:       C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor.prj
+Design Path:        C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor.pcb
+Design Title:       
+Created:            24/07/2017 11:08:25 a.m.
+Last Saved:         24/07/2017 11:12:38 a.m.
+Editing Time:       17 min
+Units:              mm (precision 3)
+
+
+Checking integrity of Schematic "C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor.sch" with PCB "C:\users\bryanmtdt\My Documents\git\Medigray\PCB_adaptador_sensor\Adaptador_Sensor.pcb"
+==========================================================================================================================================================================================================================
+
+
+End Of Report.
