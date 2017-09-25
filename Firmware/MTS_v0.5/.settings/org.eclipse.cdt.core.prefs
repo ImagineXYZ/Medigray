@@ -1,0 +1,12 @@
+eclipse.preferences.version=1
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/BATH_BUILD/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/BATH_BUILD/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/BATH_BUILD/value=1
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/IDF_PATH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/IDF_PATH/operation=append
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/IDF_PATH/value=/home/bryanmtdt/esp/esp-idf
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/PATH/delimiter=\:
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/PATH/operation=replace
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/PATH/value=/bin\:/usr/local/bin\:/usr/local/sbin\:/usr/bin\:/usr/sbin\:/sbin\:.\:/snap/bin\:/usr/lib/jvm/java-8-oracle/bin\:/usr/lib/jvm/java-8-oracle/db/bin\:/usr/lib/jvm/java-8-oracle/jre/bin\:/home/bryanmtdt/esp/xtensa-esp32-elf/bin
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/append=true
+environment/project/cdt.managedbuild.toolchain.gnu.cross.base.1307700367/appendContributed=true
