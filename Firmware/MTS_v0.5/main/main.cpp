@@ -1,9 +1,10 @@
-#define device	18
+#define device	13
 //DEBUG 1 -> Debug mode active
 #define DEBUG 1
 
 //WiFi Network Credentials
-const char* wifi_ssid = "ImagineXYZ";
+//const char* wifi_ssid = "ImagineXYZ";
+const char* wifi_ssid = "Linksys26313";
 const char* wifi_pass = "delunoalnueve";
 //const char* wifi_ssid = "Medigray";
 //const char* wifi_pass = "22707906AA";
@@ -27,8 +28,8 @@ const char* OTA_pass = "iotsharing";
 //#define pass "345"
 //#define test_topic "imagine/medigray"
 
-#define mqtt_retries_reconnect_ 5
-#define mqtt_retries_delay_ms_ 500
+#define mqtt_retries_reconnect_ 1
+#define mqtt_retries_delay_ms_ 200
 
 //****----------------- INCLUDES ---------------*****//
 #include "freertos/FreeRTOS.h"
@@ -136,12 +137,15 @@ void SetupOTA(){
 	  ArduinoOTA.onStart([]() {
 		  if(DEBUG){
 			  Serial.println("Start updating");
+			  esp_task_wdt_feed();
+			  esp_task_wdt_delete();
 		  }
 	  });
 	  /* this callback function will be invoked when updating end */
 	  ArduinoOTA.onEnd([]() {
 		  if(DEBUG){
 			  Serial.println("\nEnd updating");
+			  //esp_task_wdt_feed();
 		  }
 	  });
 	  /* this callback function will be invoked when a number of chunks of software was flashed
@@ -149,6 +153,7 @@ void SetupOTA(){
 	  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
 		  if(DEBUG){
 			  Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
+			  //esp_task_wdt_feed();
 		  }
 	  });
 
@@ -213,14 +218,11 @@ void leersensor(){
 	display.display();
 
 	if(DEBUG){
-		Serial.print("ADJ1(T): ");
-		Serial.print(adj1);
-		Serial.print("\tADJ2(H): ");
-		Serial.println(adj2);
-		Serial.print("T: ");
-		Serial.print(temp_c);
-		Serial.print("  \tH: ");
-		Serial.println(humidity);
+		ESP_LOGI("Measure","Temp: %.1f %cC", temp_c, 176);
+		ESP_LOGI("Measure","Hum: %.1f %%", humidity);
+		ESP_LOGI("Measure","ADJ1[T]: %.1f %cC", adj1, 176);
+		ESP_LOGI("Measure","ADJ2[T]: %.1f %%", adj2);
+
 	}
 
 	tempC = String(temp_c, 2);
@@ -232,10 +234,18 @@ void leersensor(){
 void enviarMensaje(){
 
 	digitalWrite(5,HIGH);
+	if(DEBUG){
+		Serial.println("Check Wifi");
+	}
 	bool connected_wifi = WiFi.status() == WL_CONNECTED;
 	if (!connected_wifi){
 		int cont=0;
+		esp_task_wdt_feed();
+		if(DEBUG){
+			Serial.println("Try Wifi...");
+		}
 		while(!esp.connectAP(wifi_ssid, wifi_pass)){
+			esp_task_wdt_feed();
 			delay(200);
 			if(DEBUG){
 				Serial.println("Conectando Wifi...");
@@ -244,6 +254,10 @@ void enviarMensaje(){
 			if (cont>5){
 				break;
 			}
+		}
+	}else{
+		if(DEBUG){
+			Serial.println("Wifi connected");
 		}
 	}
 
@@ -313,6 +327,9 @@ void MTS_task(void *pvParameter)
 	esp.MQTTConfig(mqtt_id, mqtt_retries_reconnect_, mqtt_retries_delay_ms_);
 	esp_task_wdt_feed();
 	int i=0,div=20;
+	if(DEBUG){
+		Serial.println("Initial configuration completed");
+	}
 	while(1){
 		i=0;
 		while(i<div){
@@ -324,7 +341,14 @@ void MTS_task(void *pvParameter)
 		}
 		ArduinoOTA.handle();
 		esp.MQTTLoop();
+		if(DEBUG){
+			Serial.println("Leer Sensor");
+		}
 		leersensor();
+		if(DEBUG){
+			Serial.println("Enviar Mensaje");
+		}
+		esp_task_wdt_feed();
 		enviarMensaje();
 		//delay(8000);
 		Serial.println("Feed");

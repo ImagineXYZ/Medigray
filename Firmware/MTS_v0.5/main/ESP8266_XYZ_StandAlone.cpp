@@ -118,7 +118,6 @@ bool ESP8266_XYZ::MQTTReconnect(const char* id, int retries, int delay_ms){
 #ifdef DEBUG
 			Serial.print("failed, rc=");
 			Serial.print(clientMQTT.state());
-			Serial.println(" try again in 5 seconds");
 #endif
 			delay(delay_ms);
 		}
