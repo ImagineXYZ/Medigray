@@ -19,6 +19,7 @@ class ESP8266_XYZ
 	public:
 		ESP8266_XYZ();
 		bool connectAP(const char* ssid, const char* pass);
+		int getRSSI();
 		void softReset();
 		int readResponse(String* response);
 		int httpPost(const char* server, String path, int port, String *response);

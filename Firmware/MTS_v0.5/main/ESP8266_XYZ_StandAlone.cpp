@@ -23,6 +23,10 @@ bool ESP8266_XYZ::connectAP(const char* ssid, const char* pass){
   	return WiFi.status(); 
 }
 
+int ESP8266_XYZ::getRSSI(){
+	return WiFi.RSSI();
+}
+
 void ESP8266_XYZ::softReset(){
 	ESP.restart();
 }

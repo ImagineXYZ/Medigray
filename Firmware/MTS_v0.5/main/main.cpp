@@ -1,15 +1,17 @@
 #define device	13
 //DEBUG 1 -> Debug mode active
 #define DEBUG 1
+#define measure_period 1000
+#define broadcast_period 5000
+#define TDelta 8
+#define HDelta 20
 
 //WiFi Network Credentials
-//const char* wifi_ssid = "ImagineXYZ";
-const char* wifi_ssid = "Linksys26313";
+const char* wifi_ssid = "ImagineXYZ";
+//const char* wifi_ssid = "Linksys26313";
 const char* wifi_pass = "delunoalnueve";
 //const char* wifi_ssid = "Medigray";
 //const char* wifi_pass = "22707906AA";
-//const char* wifi_ssid = "Salazar Ramirez";
-//const char* wifi_pass = "17bsantiagodavid130212";
 
 //Network Params
 int OTA_PORT=3232;
@@ -34,12 +36,14 @@ const char* OTA_pass = "iotsharing";
 //****----------------- INCLUDES ---------------*****//
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+//#include "freertos/heap_regions.h"
 #include "esp_log.h"
 #include "esp_task_wdt.h"
 #include "esp_wifi.h"
 #include "esp_system.h"
 #include "esp_event.h"
 #include "esp_event_loop.h"
+#include "esp_heap_caps.h"
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 #include "Arduino.h"
@@ -53,6 +57,7 @@ const char* OTA_pass = "iotsharing";
 //Interface Includes
 #include "Wire.h"
 #include "SPI.h"
+#include "driver/adc.h"
 
 //Sensor Includes
 #include "SHT1x.h"
@@ -94,10 +99,32 @@ Adafruit_SSD1306 display(OLED_RESET);
 
 
 //Potentiometers
-#define potTempPin A4
-#define potHumPin A6
+//A4-> 32
+//A6-> 34
+#define potTempPin 32
+#define potHumPin 34
 float adj1=0;
 float adj2=0;
+
+//Data Buffers
+#define BUFF_SIZE 64
+#define BUFF_SIZE_MASK (BUFF_SIZE-1)
+
+typedef struct buffer{
+    float buff[BUFF_SIZE];
+    int writeIndex;
+}buffer;
+
+void write(buffer* buffer,float value){
+    buffer->buff[(buffer->writeIndex++) & BUFF_SIZE_MASK] = value;
+}
+
+float readn(buffer* buffer, int Xn){
+    return buffer->buff[(buffer->writeIndex + (~Xn)) & BUFF_SIZE_MASK];
+}
+
+buffer TempRing;
+buffer HumRing;
 
 #define LED_GPIO 5
 
@@ -196,6 +223,15 @@ void leersensor(){
 	//adj2=(analogRead(potHumPin)/(1024))*8-4;
 	adj1=0;
 	adj2=0;
+	adc1_config_width(ADC_WIDTH_10Bit);
+	adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_6db);
+	adj1=(float) adc1_get_voltage(ADC1_CHANNEL_4);
+	adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_6db);
+	adj2=(float) adc1_get_voltage(ADC1_CHANNEL_6);
+
+	adj1=(adj1/(1024))*TDelta-TDelta/2;
+	adj2=(adj2/(1024))*HDelta-HDelta/2;
+
 	temp_c = sht1x.readTemperatureC()+adj1;
 	humidity = sht1x.readHumidity()+adj2;
 	display.clearDisplay();
@@ -204,7 +240,6 @@ void leersensor(){
 	display.setCursor(0, 5);
 	display.println("iMA6iNEXYZ");
 	display.setTextSize(1);
-	display.println("");
 	display.println("www.imaginexyz.com");
 	display.print("T: ");
 	display.print(temp_c);
@@ -215,6 +250,11 @@ void leersensor(){
 	display.print(getMacAddress());
 	display.print(" ");
 	display.println(ID_);
+//	display.print("AjT:");
+//	display.print(adj1);
+//	display.print(" ");
+//	display.print("AjH:");
+//	display.println(adj2);
 	display.display();
 
 	if(DEBUG){
@@ -222,12 +262,13 @@ void leersensor(){
 		ESP_LOGI("Measure","Hum: %.1f %%", humidity);
 		ESP_LOGI("Measure","ADJ1[T]: %.1f %cC", adj1, 176);
 		ESP_LOGI("Measure","ADJ2[T]: %.1f %%", adj2);
-
+		ESP_LOGI("Measure","Free IRAM: %d",  esp_get_free_heap_size());
 	}
 
 	tempC = String(temp_c, 2);
 	Hum = String(humidity, 2);
-
+	write(&TempRing,temp_c);
+	write(&HumRing,humidity);
 }
 
 
@@ -266,13 +307,17 @@ void enviarMensaje(){
 		if(DEBUG){
 				Serial.println("Enviando Mensaje");
 		}
-		//tempC = String(temp_c_1/60, 2);
-		//Hum = String(humidity_1/60, 2);
+
 		esp.addToJson("sensor", ID);
 		esp.addToJson("hum", Hum);
 		esp.addToJson("temp", tempC);
+		esp.addToJson("adjT", adj1);
+		esp.addToJson("adjH", adj2);
 		//esp.addToJson("hum", String(humidity,2));
 		//esp.addToJson("temp", String(temp_c,2));
+		esp.addToJson("heap",String(esp_get_free_heap_size()));
+		//esp.addToJson("rssi", String(esp.getRSSI()));
+		esp.addToJson("version","0.5.1");
 		esp.addToJson("exp","IDF WDT");
 		esp.MQTTPublish(mqtt_topic_);
 
@@ -294,9 +339,24 @@ void MTS_task(void *pvParameter)
 	//El puerto se configuró en 115200 en el sdkconfig
 	Serial.begin(115200);
 
-	/* Set the GPIO as a push/pull output */
+	/* Set the GPIO as output */
 	pinMode(LED_GPIO, OUTPUT);
-	//gpio_set_direction(BLINK_GPIO, GPIO_MODE_OUTPUT);
+
+	//Initialize Screen
+	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+	display.clearDisplay();
+	display.setTextSize(2);
+	display.setTextColor(WHITE);
+	display.setCursor(0, 5);
+	display.println("iMA6iNEXYZ");
+	display.setTextSize(1);
+	display.println("");
+	display.println("www.imaginexyz.com");
+	display.println("");
+	display.println("");
+	display.display();
+	delay(500);
+
 	if(DEBUG){
 		Serial.println(" Wifi");
 	}
@@ -326,56 +386,37 @@ void MTS_task(void *pvParameter)
 	esp.MQTTTSetServer(mqtt_server_, mqtt_port_, mqtt_user_, mqtt_pass_);
 	esp.MQTTConfig(mqtt_id, mqtt_retries_reconnect_, mqtt_retries_delay_ms_);
 	esp_task_wdt_feed();
-	int i=0,div=20;
+
 	if(DEBUG){
 		Serial.println("Initial configuration completed");
 	}
+	uint32_t timerMeasure = millis();
+	uint32_t timerBroadcast = millis();
+
 	while(1){
-		i=0;
-		while(i<div){
-			delay(8000/div);
-			ArduinoOTA.handle();
-			esp.MQTTLoop();
-			esp_task_wdt_feed();
-			i++;
-		}
+
 		ArduinoOTA.handle();
 		esp.MQTTLoop();
-		if(DEBUG){
-			Serial.println("Leer Sensor");
+		if( (millis() - timerMeasure) >= measure_period){
+			if(DEBUG){
+				Serial.println("Leer Sensor");
+			}
+			leersensor();
+			timerMeasure=millis();
 		}
-		leersensor();
-		if(DEBUG){
-			Serial.println("Enviar Mensaje");
+
+		if( (millis() - timerBroadcast) >= broadcast_period){
+			if(DEBUG){
+				Serial.println("Enviar Mensaje");
+			}
+			esp_task_wdt_feed();
+			enviarMensaje();
+			timerBroadcast=millis();
 		}
+
 		esp_task_wdt_feed();
-		enviarMensaje();
-		//delay(8000);
-		Serial.println("Feed");
-		esp_task_wdt_feed();
+		delay(10);
 	}
-//	//LOOP TEST WDT
-//	while(1) {
-//		/* Blink off (output low) */
-//		//gpio_set_level(BLINK_GPIO, 0);
-//		digitalWrite(LED_GPIO,LOW);
-//		vTaskDelay(500 / portTICK_PERIOD_MS);
-//		/* Blink on (output high) */
-//		//gpio_set_level(BLINK_GPIO, 1);
-//		digitalWrite(LED_GPIO,HIGH);
-//		vTaskDelay(500 / portTICK_PERIOD_MS);
-//		leersensor();
-//		enviarMensaje();
-//		printf("%d\n",i);
-//		if(i<10){
-//			esp_task_wdt_feed();
-//		}else{
-//			ESP_LOGI("Funct","No Feed");
-//		}
-//
-//		i++;
-//
-//	}
 }
 
 extern "C" void app_main(void)
