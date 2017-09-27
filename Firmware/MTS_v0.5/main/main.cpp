@@ -125,6 +125,8 @@ float readn(buffer* buffer, int Xn){
 
 buffer TempRing;
 buffer HumRing;
+int cont_Temp;
+int cont_Hum;
 
 #define LED_GPIO 5
 
@@ -234,6 +236,14 @@ void leersensor(){
 
 	temp_c = sht1x.readTemperatureC()+adj1;
 	humidity = sht1x.readHumidity()+adj2;
+	if (humidity>100){
+		humidity=100;
+	}else{
+		if(humidity<0){
+			humidity=0;
+		}
+	}
+
 	display.clearDisplay();
 	display.setTextSize(2);
 	display.setTextColor(WHITE);
@@ -265,16 +275,63 @@ void leersensor(){
 		ESP_LOGI("Measure","Free IRAM: %d",  esp_get_free_heap_size());
 	}
 
-	tempC = String(temp_c, 2);
-	Hum = String(humidity, 2);
 	write(&TempRing,temp_c);
+	cont_Temp++;
 	write(&HumRing,humidity);
+	cont_Hum++;
 }
 
 
 void enviarMensaje(){
 
 	digitalWrite(5,HIGH);
+
+	//Estadistics
+	int size_Temp=cont_Temp;
+	int size_Hum=cont_Hum;
+	if (size_Temp>BUFF_SIZE){
+		size_Temp=BUFF_SIZE;
+	}
+	if (size_Hum>BUFF_SIZE){
+		size_Hum=BUFF_SIZE;
+	}
+	//Promedio, min, max
+	float temp_mean,temp_min,temp_max;
+	float temp_val;
+	temp_mean=0;
+	temp_min=readn(&TempRing,0);
+	temp_max=readn(&TempRing,0);
+	for (int i=0;i<size_Temp;i++){
+		temp_val=readn(&TempRing,i);
+		temp_mean+=temp_val;
+		if(temp_min>temp_val){
+			temp_min=temp_val;
+		}
+		if(temp_max<temp_val){
+			temp_max=temp_val;
+		}
+	}
+	temp_mean=temp_mean/size_Temp;
+	float hum_mean,hum_min, hum_max;
+	float hum_val;
+	hum_mean=0;
+	hum_min=readn(&HumRing,0);
+	hum_max=readn(&HumRing,0);
+	for (int i=0;i<size_Hum;i++){
+		hum_val=readn(&HumRing,i);
+		hum_mean+=hum_val;
+		if(hum_min>hum_val){
+			hum_min=hum_val;
+		}
+		if(hum_max<hum_val){
+			hum_max=hum_val;
+		}
+	}
+	hum_mean=hum_mean/size_Hum;
+	//Reset buffer conts
+	cont_Temp=0;
+	cont_Hum=0;
+
 	if(DEBUG){
 		Serial.println("Check Wifi");
 	}
@@ -309,16 +366,20 @@ void enviarMensaje(){
 		}
 
 		esp.addToJson("sensor", ID);
-		esp.addToJson("hum", Hum);
-		esp.addToJson("temp", tempC);
-		esp.addToJson("adjT", adj1);
-		esp.addToJson("adjH", adj2);
-		//esp.addToJson("hum", String(humidity,2));
-		//esp.addToJson("temp", String(temp_c,2));
+		esp.addToJson("hum", String(humidity,2));
+		esp.addToJson("hum_mean", String(hum_mean,2));
+		esp.addToJson("hum_min", String(hum_min,2));
+		esp.addToJson("hum_max", String(hum_max,2));
+		esp.addToJson("temp", String(temp_c,2));
+		esp.addToJson("temp_mean", String(temp_mean,2));
+		esp.addToJson("temp_min", String(temp_min,2));
+		esp.addToJson("temp_max", String(temp_max,2));
+		esp.addToJson("adjT", String(adj1,2));
+		esp.addToJson("adjH", String(adj2,2));
 		esp.addToJson("heap",String(esp_get_free_heap_size()));
 		esp.addToJson("rssi", String(esp.getRSSI()));
 		esp.addToJson("version","0.5.1");
-		esp.addToJson("exp","IDF WDT");
+		esp.addToJson("label","StatisticsCalRSSI");
 		esp.MQTTPublish(mqtt_topic_);
 
 	}else{
@@ -392,6 +453,9 @@ void MTS_task(void *pvParameter)
 	}
 	uint32_t timerMeasure = millis();
 	uint32_t timerBroadcast = millis();
+
+	cont_Temp=0;
+	cont_Hum=0;
 
 	while(1){
 
