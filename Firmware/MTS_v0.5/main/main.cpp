@@ -316,7 +316,7 @@ void enviarMensaje(){
 		//esp.addToJson("hum", String(humidity,2));
 		//esp.addToJson("temp", String(temp_c,2));
 		esp.addToJson("heap",String(esp_get_free_heap_size()));
-		//esp.addToJson("rssi", String(esp.getRSSI()));
+		esp.addToJson("rssi", String(esp.getRSSI()));
 		esp.addToJson("version","0.5.1");
 		esp.addToJson("exp","IDF WDT");
 		esp.MQTTPublish(mqtt_topic_);
