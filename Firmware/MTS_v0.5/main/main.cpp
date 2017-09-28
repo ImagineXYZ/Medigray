@@ -3,6 +3,8 @@
 #define DEBUG 1
 #define measure_period 1000
 #define broadcast_period 10000
+#define adj_persistence 2000
+#define adj_period 5000
 #define TDelta 8
 #define HDelta 20
 
@@ -103,11 +105,12 @@ Adafruit_SSD1306 display(OLED_RESET);
 //A6-> 34
 #define potTempPin 32
 #define potHumPin 34
-float adj1=0;
-float adj2=0;
-
+float adjT=0;
+float adjH=0;
+float adjT_1=0;
+float adjH_1=0;
 //Data Buffers
-#define BUFF_SIZE 64
+#define BUFF_SIZE 1024
 #define BUFF_SIZE_MASK (BUFF_SIZE-1)
 
 typedef struct buffer{
@@ -127,7 +130,8 @@ buffer TempRing;
 buffer HumRing;
 int cont_Temp;
 int cont_Hum;
-
+bool adjusting_T=false;
+bool adjusting_H=false;
 
 
 #define LED_GPIO 5
@@ -221,23 +225,37 @@ void SetupOTA(){
 	  ArduinoOTA.begin();
 }
 
+//ADC Normalizado
+float getADC_T_Val(){
+	adc1_config_width(ADC_WIDTH_10Bit);
+	adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_6db);
+	return (float) adc1_get_voltage(ADC1_CHANNEL_4)/1024;
+}
+
+//ADC Normalizado
+float getADC_H_Val(){
+	adc1_config_width(ADC_WIDTH_10Bit);
+	adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_6db);
+	return (float) adc1_get_voltage(ADC1_CHANNEL_6)/1024;
+}
 
 void leersensor(){
 	//adj1=(analogRead(potTempPin)/(1024))*8-4;
 	//adj2=(analogRead(potHumPin)/(1024))*8-4;
-	adj1=0;
-	adj2=0;
-	adc1_config_width(ADC_WIDTH_10Bit);
-	adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_6db);
-	adj1=(float) adc1_get_voltage(ADC1_CHANNEL_4);
-	adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_6db);
-	adj2=(float) adc1_get_voltage(ADC1_CHANNEL_6);
+	adjT=0;
+	adjH=0;
+	float ADCT_Val,ADCH_Val;
+	//adc1_config_width(ADC_WIDTH_10Bit);
+	//adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_6db);
+	ADCT_Val=getADC_T_Val();
+	//adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_6db);
+	ADCH_Val=getADC_H_Val();
 
-	adj1=(adj1/(1024))*TDelta-TDelta/2;
-	adj2=(adj2/(1024))*HDelta-HDelta/2;
+	adjT=(ADCT_Val)*TDelta-TDelta/2;
+	adjH=(ADCH_Val)*HDelta-HDelta/2;
 
-	temp_c = sht1x.readTemperatureC()+adj1;
-	humidity = sht1x.readHumidity()+adj2;
+	temp_c = sht1x.readTemperatureC()+adjT;
+	humidity = sht1x.readHumidity()+adjH;
 	if (humidity>100){
 		humidity=100;
 	}else{
@@ -254,23 +272,56 @@ void leersensor(){
 	display.setTextSize(1);
 	display.println("www.imaginexyz.com");
 	display.println("");
-	display.println("");
 	display.print("T:");
 	display.print(temp_c);
 	display.print(" C");
-	display.print(" H:");
-	display.print(humidity);
-	display.println(" %");
-	display.print("rssi: ");
+	display.print("  HR:");
+	display.print(String(humidity,1));
+	display.println("%");
+	int nchars=15;
+	char fillchar=127;
+	int position;
+	if(adjusting_T){
+		display.print("T ");
+		position = (int)((ADCT_Val)*nchars);
+		display.print("[");
+		for(int i=0;i<nchars;i++){
+			if (i<=position){
+				display.print(fillchar);
+			}else{
+				display.print(" ");
+			}
+		}
+		display.print("]");
+	}else{ //uno de los ajustes a la vez
+		if(adjusting_H){
+			display.print("H ");
+			position = (int)((ADCH_Val)*nchars);
+			display.print("[");
+			for(int i=0;i<nchars;i++){
+				if (i<=position){
+					display.print(fillchar);
+				}else{
+					display.print(" ");
+				}
+			}
+			display.print("]");
+		}
+	}
+	display.println("");
+	display.print(" ");
+	display.print(ID_);
+	display.print("     ");
+	display.print("RSSI: ");
 	bool connected_wifi = WiFi.status() == WL_CONNECTED;
 	if (connected_wifi){
 		display.println(String(esp.getRSSI()));
 	}else{
-		display.println("No conectado");
+		display.println("No WiFi");
 	}
-	display.print(getMacAddress());
-	display.print(" ");
-	display.println(ID_);
+//	display.print(getMacAddress());
+//	display.print(" ");
+//	display.println(ID_);
 //	display.print("AjT:");
 //	display.print(adj1);
 //	display.print(" ");
@@ -281,8 +332,8 @@ void leersensor(){
 	if(DEBUG){
 		ESP_LOGI("Measure","Temp: %.1f %cC", temp_c, 176);
 		ESP_LOGI("Measure","Hum: %.1f %%", humidity);
-		ESP_LOGI("Measure","ADJ1[T]: %.1f %cC", adj1, 176);
-		ESP_LOGI("Measure","ADJ2[T]: %.1f %%", adj2);
+		ESP_LOGI("Measure","ADJ1[T]: %.1f %cC", adjT, 176);
+		ESP_LOGI("Measure","ADJ2[T]: %.1f %%", adjH);
 		ESP_LOGI("Measure","Free IRAM: %d",  esp_get_free_heap_size());
 	}
 
@@ -377,17 +428,17 @@ void enviarMensaje(){
 		}
 		esp_task_wdt_feed();
 		esp.addToJson("sensor", ID);
-		esp.addToJson("hum", String(humidity,2));
-		esp.addToJson("hum_mean", String(hum_mean,2));
-		esp.addToJson("hum_min", String(hum_min,2));
-		esp.addToJson("hum_max", String(hum_max,2));
+		esp.addToJson("hum", String(humidity,1));
+		esp.addToJson("hum_mean", String(hum_mean,1));
+		esp.addToJson("hum_min", String(hum_min,1));
+		esp.addToJson("hum_max", String(hum_max,1));
 		esp.addToJson("temp", String(temp_c,2));
 		esp.addToJson("temp_mean", String(temp_mean,2));
 		esp.addToJson("temp_min", String(temp_min,2));
 		esp.addToJson("temp_max", String(temp_max,2));
 		esp.addToJson("nT",String(size_Temp));
-		esp.addToJson("adjT", String(adj1,2));
-		esp.addToJson("adjH", String(adj2,2));
+		esp.addToJson("adjT", String(adjT,2));
+		esp.addToJson("adjH", String(adjH,2));
 		esp.addToJson("heap",String(esp_get_free_heap_size()));
 		esp.addToJson("rssi", String(esp.getRSSI()));
 		esp.addToJson("version","0.5.1");
@@ -415,7 +466,11 @@ void MTS_task(void *pvParameter)
 
 	/* Set the GPIO as output */
 	pinMode(LED_GPIO, OUTPUT);
-
+	if(DEBUG){
+		Serial.println(" Wifi");
+	}
+	//Connect to WiFi
+	esp.connectAP(wifi_ssid, wifi_pass);
 	//Initialize Screen
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	display.clearDisplay();
@@ -427,15 +482,13 @@ void MTS_task(void *pvParameter)
 	display.println("");
 	display.println("www.imaginexyz.com");
 	display.println("");
-	display.println("");
+	display.print(getMacAddress());
+	display.print(" ");
+	display.println(ID_);
 	display.display();
 	delay(500);
 
-	if(DEBUG){
-		Serial.println(" Wifi");
-	}
-	//Connect to WiFi
-	esp.connectAP(wifi_ssid, wifi_pass);
+
 	bool connected_wifi = WiFi.status() == WL_CONNECTED;
 	if(connected_wifi){
 		//delay(1000); //
@@ -466,10 +519,14 @@ void MTS_task(void *pvParameter)
 	}
 	uint32_t timerMeasure = millis();
 	uint32_t timerBroadcast = millis();
+	uint32_t timerAdjPers = millis();
+	uint32_t timerAdjPeriod = millis();
 
 	cont_Temp=0;
 	cont_Hum=0;
-
+	adjT_1=getADC_T_Val();
+	adjH_1=getADC_H_Val();
+	float temp_val;
 	while(1){
 
 		ArduinoOTA.handle();
@@ -489,6 +546,32 @@ void MTS_task(void *pvParameter)
 			esp_task_wdt_feed();
 			enviarMensaje();
 			timerBroadcast=millis();
+		}
+
+		if((millis() - timerAdjPers) >= adj_persistence){
+			temp_val=getADC_T_Val();
+			if(abs(adjT_1-temp_val)>0.01){
+				adjusting_T=true;
+				adjusting_H=false;
+				timerAdjPeriod=millis();
+			}else{
+				temp_val=getADC_H_Val();
+				if(abs(adjH_1-temp_val)>0.01){
+					adjusting_T=false;
+					adjusting_H=true;
+					timerAdjPeriod=millis();
+				}
+			}
+			adjT_1=getADC_T_Val();
+			adjH_1=getADC_H_Val();
+			timerAdjPers=millis();
+		}
+
+		if(adjusting_T || adjusting_H){
+			if((millis()-timerAdjPeriod)>=adj_period){
+				adjusting_T=false;
+				adjusting_H=false;
+			}
 		}
 
 		esp_task_wdt_feed();
