@@ -1,8 +1,8 @@
 #define device	13
 //DEBUG 1 -> Debug mode active
 #define DEBUG 1
-#define measure_period 1000
-#define broadcast_period 10000
+#define measure_period 3000
+#define broadcast_period 15000
 #define adj_persistence 1000
 #define adj_period 10000
 #define TDelta 8
@@ -49,6 +49,7 @@ const char* OTA_pass = "iotsharing";
 #include "nvs_flash.h"
 #include "driver/gpio.h"
 #include "Arduino.h"
+#include  <math.h>
 
 //Network Includes
 #include "ArduinoOTA.h"
@@ -247,14 +248,9 @@ float getADC_H_Val(){
 }
 
 void leersensor(){
-	//adj1=(analogRead(potTempPin)/(1024))*8-4;
-	//adj2=(analogRead(potHumPin)/(1024))*8-4;
 
 	float ADCT_Val,ADCH_Val;
-	//adc1_config_width(ADC_WIDTH_10Bit);
-	//adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_6db);
 	ADCT_Val=getADC_T_Val();
-	//adc1_config_channel_atten(ADC1_CHANNEL_6,ADC_ATTEN_6db);
 	ADCH_Val=getADC_H_Val();
 
 	adjT=(ADCT_Val)*TDelta-TDelta/2;
@@ -333,6 +329,17 @@ void enviarMensaje(){
 		}
 	}
 	hum_mean=hum_mean/size_Hum;
+	//Standard Deviation
+	float temp_sd=0.0;
+	for (int i=0;i<size_Temp;i++){
+		temp_sd += pow(readn(&TempRing,i) - temp_mean, 2);
+	}
+	temp_sd=sqrt(temp_sd/size_Temp);
+	float hum_sd=0.0;
+	for (int i=0;i<size_Hum;i++){
+		hum_sd += pow(readn(&HumRing,i) - hum_mean, 2);
+	}
+	hum_sd=sqrt(hum_sd/size_Hum);
 	//Reset buffer conts
 	cont_Temp=0;
 	cont_Hum=0;
@@ -371,14 +378,16 @@ void enviarMensaje(){
 		}
 		esp_task_wdt_feed();
 		esp.addToJson("sensor", ID);
-		esp.addToJson("hum", String(humidity,1));
-		esp.addToJson("hum_mean", String(hum_mean,1));
-		esp.addToJson("hum_min", String(hum_min,1));
-		esp.addToJson("hum_max", String(hum_max,1));
 		esp.addToJson("temp", String(temp_c,2));
 		esp.addToJson("temp_mean", String(temp_mean,2));
 		esp.addToJson("temp_min", String(temp_min,2));
 		esp.addToJson("temp_max", String(temp_max,2));
+		esp.addToJson("temp_sd", String(temp_sd,2));
+		esp.addToJson("hum", String(humidity,1));
+		esp.addToJson("hum_mean", String(hum_mean,1));
+		esp.addToJson("hum_min", String(hum_min,1));
+		esp.addToJson("hum_max", String(hum_max,1));
+		esp.addToJson("hum_sd", String(hum_sd,1));
 		esp.addToJson("nT",String(size_Temp));
 		esp.addToJson("adjT", String(adjT,2));
 		esp.addToJson("adjH", String(adjH,2));
@@ -440,17 +449,17 @@ void Screen_Normal_Operation(float temp_c, float humidity, float ADCT_Val,float 
 		position = (int)((ADCT_Val)*nchars);
 		display.print("[");
 		for(int i=0;i<nchars;i++){
-			if (i<center){
+			if (i<center-1){
 				if(i<position){
 					display.print(' ');
 				}else{
 					display.print(fillCharDown);
 				}
 			}
-			if(i==center){
+			if(i==center-1){
 				display.print(centerChar);
 			}
-			if (i>center){
+			if (i>center-1){
 				if(i>position){
 					display.print(' ');
 				}else{
@@ -459,28 +468,23 @@ void Screen_Normal_Operation(float temp_c, float humidity, float ADCT_Val,float 
 			}
 		}
 		display.print("]");
-	}else{ //uno de los ajustes a la vez
+	}else{ //Uno de los ajustes a la vez
 		if(adjusting_H){
 			display.print("H ");
 			position = (int)((ADCH_Val)*nchars);
 			display.print("[");
 			for(int i=0;i<nchars;i++){
-				//				if (i<=position){
-				//					display.print(fillchar);
-				//				}else{
-				//					display.print(" ");
-				//				}
-				if (i<center){
+				if (i<center-1){
 					if(i<position){
 						display.print(' ');
 					}else{
 						display.print(fillCharDown);
 					}
 				}
-				if(i==center){
+				if(i==center-1){
 					display.print(centerChar);
 				}
-				if (i>center){
+				if (i>center-1){
 					if(i>position){
 						display.print(' ');
 					}else{
