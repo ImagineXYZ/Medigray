@@ -35,7 +35,7 @@ float SHT1x::readTemperatureC()
   float _temperature;      // Temperature derived from raw value
 
   // Conversion coefficients from SHT15 datasheet
-  const float D1 = -40.0;  // for 14 Bit @ 5V
+  const float D1 = -39.6;  // for 14 Bit @ 3V
   const float D2 =   0.01; // for 14 Bit DEGC
 
   // Fetch raw value
@@ -56,7 +56,7 @@ float SHT1x::readTemperatureF()
   float _temperature;       // Temperature derived from raw value
 
   // Conversion coefficients from SHT15 datasheet
-  const float D1 = -40.0;   // for 14 Bit @ 5V
+  const float D1 = -39.3;   // for 14 Bit @ 3V
   const float D2 =   0.018; // for 14 Bit DEGF
 
   // Fetch raw value
