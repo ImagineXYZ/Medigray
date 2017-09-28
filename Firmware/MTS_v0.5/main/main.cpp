@@ -3,8 +3,8 @@
 #define DEBUG 1
 #define measure_period 1000
 #define broadcast_period 10000
-#define adj_persistence 2000
-#define adj_period 5000
+#define adj_persistence 1000
+#define adj_period 10000
 #define TDelta 8
 #define HDelta 20
 
@@ -126,6 +126,7 @@ float readn(buffer* buffer, int Xn){
     return buffer->buff[(buffer->writeIndex + (~Xn)) & BUFF_SIZE_MASK];
 }
 
+
 buffer TempRing;
 buffer HumRing;
 int cont_Temp;
@@ -135,6 +136,12 @@ bool adjusting_H=false;
 
 
 #define LED_GPIO 5
+//****-------------- PROTOTYPE FUNCTIONS -------------*****//
+
+void Screen_Normal_Operation(float temp_c, float humidity, float ADCT_Val,float ADCH_Val );
+
+
+//****-------------- IOT FUNCTIONS -------------*****//
 
 String getMacAddress() {
   byte mac[6];
@@ -242,8 +249,7 @@ float getADC_H_Val(){
 void leersensor(){
 	//adj1=(analogRead(potTempPin)/(1024))*8-4;
 	//adj2=(analogRead(potHumPin)/(1024))*8-4;
-	adjT=0;
-	adjH=0;
+
 	float ADCT_Val,ADCH_Val;
 	//adc1_config_width(ADC_WIDTH_10Bit);
 	//adc1_config_channel_atten(ADC1_CHANNEL_4,ADC_ATTEN_6db);
@@ -263,103 +269,8 @@ void leersensor(){
 			humidity=0;
 		}
 	}
+	Screen_Normal_Operation(temp_c, humidity, ADCT_Val,ADCH_Val );
 
-	display.clearDisplay();
-	display.setTextSize(2);
-	display.setTextColor(WHITE);
-	display.setCursor(0, 5);
-	display.println("iMA6iNEXYZ");
-	display.setTextSize(1);
-	display.println("www.imaginexyz.com");
-	display.println("");
-	display.print("T:");
-	display.print(temp_c);
-	display.print(" C");
-	display.print("  HR:");
-	display.print(String(humidity,1));
-	display.println("%");
-	int nchars=17;
-	char fillCharUp=30;
-	char fillCharDown=31;
-	char centerChar=111;
-	int position;
-	int center=(int)(nchars/2+1);
-	if(adjusting_T){
-		display.print("T ");
-		position = (int)((ADCT_Val)*nchars);
-		display.print("[");
-		for(int i=0;i<nchars;i++){
-			if (i<center){
-				if(i<position){
-					display.print(' ');
-				}else{
-					display.print(fillCharDown);
-				}
-			}
-			if(i==center){
-				display.print(centerChar);
-			}
-			if (i>center){
-				if(i>position){
-					display.print(' ');
-				}else{
-					display.print(fillCharUp);
-				}
-			}
-		}
-		display.print("]");
-	}else{ //uno de los ajustes a la vez
-		if(adjusting_H){
-			display.print("H ");
-			position = (int)((ADCH_Val)*nchars);
-			display.print("[");
-			for(int i=0;i<nchars;i++){
-//				if (i<=position){
-//					display.print(fillchar);
-//				}else{
-//					display.print(" ");
-//				}
-				if (i<center){
-					if(i<position){
-						display.print(' ');
-					}else{
-						display.print(fillCharDown);
-					}
-				}
-				if(i==center){
-					display.print(centerChar);
-				}
-				if (i>center){
-					if(i>position){
-						display.print(' ');
-					}else{
-						display.print(fillCharUp);
-					}
-				}
-			}
-			display.print("]");
-		}
-	}
-	display.println("");
-	display.print(" ");
-	display.print(ID_);
-	display.print("     ");
-	display.print("RSSI: ");
-	bool connected_wifi = WiFi.status() == WL_CONNECTED;
-	if (connected_wifi){
-		display.println(String(esp.getRSSI()));
-	}else{
-		display.println("No WiFi");
-	}
-//	display.print(getMacAddress());
-//	display.print(" ");
-//	display.println(ID_);
-//	display.print("AjT:");
-//	display.print(adj1);
-//	display.print(" ");
-//	display.print("AjH:");
-//	display.println(adj2);
-	display.display();
 
 	if(DEBUG){
 		ESP_LOGI("Measure","Temp: %.1f %cC", temp_c, 176);
@@ -487,6 +398,113 @@ void enviarMensaje(){
 	digitalWrite(5,LOW);
 }
 
+void Screen_Initial(){
+	display.clearDisplay();
+	display.setTextSize(2);
+	display.setTextColor(WHITE);
+	display.setCursor(0, 5);
+	display.println("iMA6iNEXYZ");
+	display.setTextSize(1);
+	display.println("");
+	display.println("www.imaginexyz.com");
+	display.println("");
+	display.print(getMacAddress());
+	display.print(" ");
+	display.println(ID_);
+	display.display();
+}
+
+void Screen_Normal_Operation(float temp_c, float humidity, float ADCT_Val,float ADCH_Val ){
+	display.clearDisplay();
+	display.setTextSize(2);
+	display.setTextColor(WHITE);
+	display.setCursor(0, 5);
+	display.println("iMA6iNEXYZ");
+	display.setTextSize(1);
+	display.println("www.imaginexyz.com");
+	display.println("");
+	display.print("T:");
+	display.print(temp_c);
+	display.print(" C");
+	display.print("  HR:");
+	display.print(String(humidity,1));
+	display.println("%");
+	int nchars=17;
+	char fillCharUp=30;
+	char fillCharDown=31;
+	char centerChar=111;
+	int position;
+	int center=(int)(nchars/2+1);
+	if(adjusting_T){
+		display.print("T ");
+		position = (int)((ADCT_Val)*nchars);
+		display.print("[");
+		for(int i=0;i<nchars;i++){
+			if (i<center){
+				if(i<position){
+					display.print(' ');
+				}else{
+					display.print(fillCharDown);
+				}
+			}
+			if(i==center){
+				display.print(centerChar);
+			}
+			if (i>center){
+				if(i>position){
+					display.print(' ');
+				}else{
+					display.print(fillCharUp);
+				}
+			}
+		}
+		display.print("]");
+	}else{ //uno de los ajustes a la vez
+		if(adjusting_H){
+			display.print("H ");
+			position = (int)((ADCH_Val)*nchars);
+			display.print("[");
+			for(int i=0;i<nchars;i++){
+				//				if (i<=position){
+				//					display.print(fillchar);
+				//				}else{
+				//					display.print(" ");
+				//				}
+				if (i<center){
+					if(i<position){
+						display.print(' ');
+					}else{
+						display.print(fillCharDown);
+					}
+				}
+				if(i==center){
+					display.print(centerChar);
+				}
+				if (i>center){
+					if(i>position){
+						display.print(' ');
+					}else{
+						display.print(fillCharUp);
+					}
+				}
+			}
+			display.print("]");
+		}
+	}
+	display.println("");
+	display.print(" ");
+	display.print(ID_);
+	display.print("     ");
+	display.print("RSSI: ");
+	bool connected_wifi = WiFi.status() == WL_CONNECTED;
+	if (connected_wifi){
+		display.println(String(esp.getRSSI()));
+	}else{
+		display.println("No WiFi");
+	}
+	display.display();
+}
+
 void MTS_task(void *pvParameter)
 {
 	//Parece que hay un conflicto con esta función
@@ -505,19 +523,7 @@ void MTS_task(void *pvParameter)
 	esp.connectAP(wifi_ssid, wifi_pass);
 	//Initialize Screen
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-	display.clearDisplay();
-	display.setTextSize(2);
-	display.setTextColor(WHITE);
-	display.setCursor(0, 5);
-	display.println("iMA6iNEXYZ");
-	display.setTextSize(1);
-	display.println("");
-	display.println("www.imaginexyz.com");
-	display.println("");
-	display.print(getMacAddress());
-	display.print(" ");
-	display.println(ID_);
-	display.display();
+	Screen_Initial();
 	delay(500);
 
 
@@ -558,27 +564,38 @@ void MTS_task(void *pvParameter)
 	cont_Hum=0;
 	adjT_1=getADC_T_Val();
 	adjH_1=getADC_H_Val();
+
 	float temp_val;
+
+	//Adjustment vars
+	float ADC_T_Val;
+	float ADC_H_Val;
+	float newAdjT;
+	float newAdjH;
+
 	while(1){
 
 		ArduinoOTA.handle();
 		esp.MQTTLoop();
-		if( (millis() - timerMeasure) >= measure_period){
-			if(DEBUG){
-				Serial.println("Leer Sensor");
+		if(!(adjusting_T || adjusting_H)){
+			if( (millis() - timerMeasure) >= measure_period){
+				if(DEBUG){
+					Serial.println("Leer Sensor");
+				}
+				leersensor();
+				timerMeasure=millis();
 			}
-			leersensor();
-			timerMeasure=millis();
+
+			if( (millis() - timerBroadcast) >= broadcast_period){
+				if(DEBUG){
+					Serial.println("Enviar Mensaje");
+				}
+				esp_task_wdt_feed();
+				enviarMensaje();
+				timerBroadcast=millis();
+			}
 		}
 
-		if( (millis() - timerBroadcast) >= broadcast_period){
-			if(DEBUG){
-				Serial.println("Enviar Mensaje");
-			}
-			esp_task_wdt_feed();
-			enviarMensaje();
-			timerBroadcast=millis();
-		}
 
 		if((millis() - timerAdjPers) >= adj_persistence){
 			temp_val=getADC_T_Val();
@@ -604,6 +621,14 @@ void MTS_task(void *pvParameter)
 				adjusting_T=false;
 				adjusting_H=false;
 			}
+			//Update Screen
+			ADC_T_Val=getADC_T_Val();
+			ADC_H_Val=getADC_H_Val();
+			newAdjT = (ADC_T_Val)*TDelta-TDelta/2;
+			newAdjH = (ADC_H_Val)*HDelta-HDelta/2;
+			Screen_Normal_Operation(readn(&TempRing,0)-adjT+newAdjT, readn(&HumRing,0)-adjH+newAdjH, getADC_T_Val(),getADC_H_Val() );
+			//Screen Persistence Delay
+			delay(50);
 		}
 
 		esp_task_wdt_feed();
