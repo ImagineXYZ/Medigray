@@ -278,18 +278,33 @@ void leersensor(){
 	display.print("  HR:");
 	display.print(String(humidity,1));
 	display.println("%");
-	int nchars=15;
-	char fillchar=127;
+	int nchars=17;
+	char fillCharUp=30;
+	char fillCharDown=31;
+	char centerChar=111;
 	int position;
+	int center=(int)(nchars/2+1);
 	if(adjusting_T){
 		display.print("T ");
 		position = (int)((ADCT_Val)*nchars);
 		display.print("[");
 		for(int i=0;i<nchars;i++){
-			if (i<=position){
-				display.print(fillchar);
-			}else{
-				display.print(" ");
+			if (i<center){
+				if(i<position){
+					display.print(' ');
+				}else{
+					display.print(fillCharDown);
+				}
+			}
+			if(i==center){
+				display.print(centerChar);
+			}
+			if (i>center){
+				if(i>position){
+					display.print(' ');
+				}else{
+					display.print(fillCharUp);
+				}
 			}
 		}
 		display.print("]");
@@ -299,10 +314,27 @@ void leersensor(){
 			position = (int)((ADCH_Val)*nchars);
 			display.print("[");
 			for(int i=0;i<nchars;i++){
-				if (i<=position){
-					display.print(fillchar);
-				}else{
-					display.print(" ");
+//				if (i<=position){
+//					display.print(fillchar);
+//				}else{
+//					display.print(" ");
+//				}
+				if (i<center){
+					if(i<position){
+						display.print(' ');
+					}else{
+						display.print(fillCharDown);
+					}
+				}
+				if(i==center){
+					display.print(centerChar);
+				}
+				if (i>center){
+					if(i>position){
+						display.print(' ');
+					}else{
+						display.print(fillCharUp);
+					}
 				}
 			}
 			display.print("]");
