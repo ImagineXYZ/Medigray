@@ -2,7 +2,7 @@
 //DEBUG 1 -> Debug mode active
 #define DEBUG 1
 #define measure_period 1000
-#define broadcast_period 5000
+#define broadcast_period 10000
 #define TDelta 8
 #define HDelta 20
 
@@ -128,6 +128,8 @@ buffer HumRing;
 int cont_Temp;
 int cont_Hum;
 
+
+
 #define LED_GPIO 5
 
 String getMacAddress() {
@@ -251,12 +253,21 @@ void leersensor(){
 	display.println("iMA6iNEXYZ");
 	display.setTextSize(1);
 	display.println("www.imaginexyz.com");
-	display.print("T: ");
+	display.println("");
+	display.println("");
+	display.print("T:");
 	display.print(temp_c);
-	display.println(" C");
-	display.print("H: ");
+	display.print(" C");
+	display.print(" H:");
 	display.print(humidity);
 	display.println(" %");
+	display.print("rssi: ");
+	bool connected_wifi = WiFi.status() == WL_CONNECTED;
+	if (connected_wifi){
+		display.println(String(esp.getRSSI()));
+	}else{
+		display.println("No conectado");
+	}
 	display.print(getMacAddress());
 	display.print(" ");
 	display.println(ID_);
@@ -364,7 +375,7 @@ void enviarMensaje(){
 		if(DEBUG){
 				Serial.println("Enviando Mensaje");
 		}
-
+		esp_task_wdt_feed();
 		esp.addToJson("sensor", ID);
 		esp.addToJson("hum", String(humidity,2));
 		esp.addToJson("hum_mean", String(hum_mean,2));
@@ -374,12 +385,14 @@ void enviarMensaje(){
 		esp.addToJson("temp_mean", String(temp_mean,2));
 		esp.addToJson("temp_min", String(temp_min,2));
 		esp.addToJson("temp_max", String(temp_max,2));
+		esp.addToJson("nT",String(size_Temp));
 		esp.addToJson("adjT", String(adj1,2));
 		esp.addToJson("adjH", String(adj2,2));
 		esp.addToJson("heap",String(esp_get_free_heap_size()));
 		esp.addToJson("rssi", String(esp.getRSSI()));
 		esp.addToJson("version","0.5.1");
 		esp.addToJson("label","StatisticsCalRSSI");
+		esp_task_wdt_feed();
 		esp.MQTTPublish(mqtt_topic_);
 
 	}else{
