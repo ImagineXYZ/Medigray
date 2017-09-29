@@ -135,6 +135,7 @@ int cont_Hum;
 bool adjusting_T=false;
 bool adjusting_H=false;
 
+long general_cont=0;
 
 #define LED_GPIO 5
 //****-------------- PROTOTYPE FUNCTIONS -------------*****//
@@ -387,7 +388,7 @@ void enviarMensaje(){
 		esp.addToJson("hum_mean", String(hum_mean,1));
 		esp.addToJson("hum_min", String(hum_min,1));
 		esp.addToJson("hum_max", String(hum_max,1));
-		esp.addToJson("hum_sd", String(hum_sd,1));
+		esp.addToJson("hum_sd", String(hum_sd,2));
 		esp.addToJson("nT",String(size_Temp));
 		esp.addToJson("adjT", String(adjT,2));
 		esp.addToJson("adjH", String(adjH,2));
@@ -395,8 +396,10 @@ void enviarMensaje(){
 		esp.addToJson("rssi", String(esp.getRSSI()));
 		esp.addToJson("version","0.5.1");
 		esp.addToJson("label","StatisticsCalRSSI");
+		esp.addToJson("cont",String(general_cont));
 		esp_task_wdt_feed();
 		esp.MQTTPublish(mqtt_topic_);
+		general_cont++;
 
 	}else{
 		if(DEBUG){
