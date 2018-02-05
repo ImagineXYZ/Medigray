@@ -1,36 +1,16 @@
-#define device	13
-//DEBUG 1 -> Debug mode active
-#define DEBUG 1
-#define measure_period 3000
-#define broadcast_period 15000
-#define adj_persistence 1000
-#define adj_period 10000
+//Set Params
+
+#include "params/params.h"
+
+
 #define TDelta 8
 #define HDelta 20
 
 //WiFi Network Credentials
-const char* wifi_ssid = "ImagineXYZ";
-//const char* wifi_ssid = "Linksys26313";
-const char* wifi_pass = "delunoalnueve";
-//const char* wifi_ssid = "Medigray";
-//const char* wifi_pass = "22707906AA";
 
 //Network Params
 int OTA_PORT=3232;
 const char* OTA_pass = "iotsharing";
-
-//MQTT Server Information and params
-#define mqtt_server_ "31.22.7.217"
-#define mqtt_port_ 1883
-#define mqtt_user_ "prueba"
-#define mqtt_pass_ "prueba"
-#define mqtt_topic_ "imagine/test"
-
-//#define mqtt_server "10.0.0.2"
-//#define mqtt_port 1883
-//#define user "123"
-//#define pass "345"
-//#define test_topic "imagine/medigray"
 
 #define mqtt_retries_reconnect_ 1
 #define mqtt_retries_delay_ms_ 200
@@ -132,6 +112,7 @@ buffer TempRing;
 buffer HumRing;
 int cont_Temp;
 int cont_Hum;
+bool calibration_active = CALIBRATION_ACTIVE_;
 bool adjusting_T=false;
 bool adjusting_H=false;
 
@@ -257,8 +238,12 @@ void leersensor(){
 	adjT=(ADCT_Val)*TDelta-TDelta/2;
 	adjH=(ADCH_Val)*HDelta-HDelta/2;
 
-	temp_c = sht1x.readTemperatureC()+adjT;
-	humidity = sht1x.readHumidity()+adjH;
+	temp_c = sht1x.readTemperatureC();
+	humidity = sht1x.readHumidity();
+	if(calibration_active){
+		temp_c+=adjT;
+		humidity+=adjH;
+	}
 	if (humidity>100){
 		humidity=100;
 	}else{
@@ -604,7 +589,7 @@ void MTS_task(void *pvParameter)
 		}
 
 
-		if((millis() - timerAdjPers) >= adj_persistence){
+		if(((millis() - timerAdjPers) >= adj_persistence) && calibration_active){
 			temp_val=getADC_T_Val();
 			if(abs(adjT_1-temp_val)>0.01){
 				adjusting_T=true;
