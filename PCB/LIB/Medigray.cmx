@@ -9,4 +9,5 @@ CapPoli100nF||#SOL=2=CapPoliester||@RS Part Number=||@Allied_Number=||@Manufactu
 ESP32_Thing||#DIL=40=ESP32_Thing||@Manufacturer_Part_Number=||@Manufacturer_Name=||@RS Part Number=||@Allied_Number=||@Other Part Number=||@3D Package=||@Height=
 Logo_ImagineXYZ_0.5||#USER=0=Logo_ImagineXYZ_0.5||@RS Part Number=||@Allied_Number=||@Manufacturer_Name=||@Manufacturer_Part_Number=||@Other Part Number=||@3D Package=||@Height=
 Pot_3296W_10k||#SOL=3=Pot_Precision_2.54_0.9mm||@Manufacturer_Part_Number=||@Manufacturer_Name=||@RS Part Number=||@Allied_Number=||@Other Part Number=||@3D Package=||@Height=
+RAC05-K||#DIL=5=RAC05-K||@Manufacturer_Part_Number=||@Manufacturer_Name=||@RS Part Number=||@Allied_Number=||@Other Part Number=||@3D Package=||@Height=
 Resistor||#DSC=2=DISC04||@[Description]=Resistor||@Value=1K||@Manufacturer_Part_Number=||@Manufacturer_Name=||@RS Part Number=||@Allied_Number=||@Other Part Number=||@3D Package=||@Height=
