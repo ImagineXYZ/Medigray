@@ -11,9 +11,14 @@
 //Network Params
 int OTA_PORT=3232;
 const char* OTA_pass = "iotsharing";
+///Firmware/MTS_v0.5/components/arduino/tools$
+//sudo python espota.py -i MTS_1.local -I 192.168.43.106 -p 3232 -P 3232 -a iotsharing -f ../../../build/app-template.bin
 
 #define mqtt_retries_reconnect_ 1
 #define mqtt_retries_delay_ms_ 200
+
+int limit_Wifi=100;
+int cont_Wifi=0;
 
 //****----------------- INCLUDES ---------------*****//
 #include "freertos/FreeRTOS.h"
@@ -340,6 +345,8 @@ void enviarMensaje(){
 		if(DEBUG){
 			Serial.println("Try Wifi...");
 		}
+		esp_wifi_disconnect();
+		delay(200);
 		while(!esp.connectAP(wifi_ssid, wifi_pass)){
 			esp_task_wdt_feed();
 			delay(200);
@@ -379,12 +386,20 @@ void enviarMensaje(){
 		esp.addToJson("adjH", String(adjH,2));
 		esp.addToJson("heap",String(esp_get_free_heap_size()));
 		esp.addToJson("rssi", String(esp.getRSSI()));
-		esp.addToJson("version","0.5.1");
-		esp.addToJson("label","StatisticsCalRSSI");
+		esp.addToJson("version","0.5.2");
+		esp.addToJson("label","WiFi disconnect period");
 		esp.addToJson("cont",String(general_cont));
 		esp_task_wdt_feed();
 		esp.MQTTPublish(mqtt_topic_);
 		general_cont++;
+		//Disconnect from WiFi preventing false positives
+		cont_Wifi++;
+		if(cont_Wifi>limit_Wifi){
+			cont_Wifi=0;
+			delay(200);
+			esp_wifi_disconnect();
+			delay(200);
+		}
 
 	}else{
 		if(DEBUG){
@@ -489,10 +504,32 @@ void Screen_Normal_Operation(float temp_c, float humidity, float ADCT_Val,float 
 	display.print("     ");
 	display.print("RSSI: ");
 	bool connected_wifi = WiFi.status() == WL_CONNECTED;
+	if (!connected_wifi){
+		int cont=0;
+		esp_task_wdt_feed();
+		if(DEBUG){
+			Serial.println("Try Wifi...");
+		}
+		while(!esp.connectAP(wifi_ssid, wifi_pass)){
+			esp_task_wdt_feed();
+			delay(200);
+			if(DEBUG){
+				Serial.println("Conectando Wifi...");
+			}
+			cont++;
+			if (cont>2){
+				break;
+			}
+		}
+	}
 	if (connected_wifi){
 		display.println(String(esp.getRSSI()));
 	}else{
-		display.println("No WiFi");
+		if(cont_Wifi!=0){
+			display.println("No WiFi");
+		}else{
+			cont_Wifi++;
+		}
 	}
 	display.display();
 }
